@@ -2,6 +2,9 @@ package com.example.demo.controllers;
 
 import java.util.List;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,16 +30,19 @@ public class OrderController {
 	
 	@Autowired
 	private OrderRepository orderRepository;
-	
-	
+
+	public static final Logger log = LogManager.getLogger(OrderController.class);
+
 	@PostMapping("/submit/{username}")
 	public ResponseEntity<UserOrder> submit(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
+			log.warn("Order submit failed, user not found!");
 			return ResponseEntity.notFound().build();
 		}
 		UserOrder order = UserOrder.createFromCart(user.getCart());
 		orderRepository.save(order);
+		log.info("Order successfully submitted");
 		return ResponseEntity.ok(order);
 	}
 	

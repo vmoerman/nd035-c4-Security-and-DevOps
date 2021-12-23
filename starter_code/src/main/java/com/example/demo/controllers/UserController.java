@@ -1,8 +1,9 @@
 package com.example.demo.controllers;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +33,9 @@ public class UserController {
 
 	@Autowired
 	private BCryptPasswordEncoder bCryptPasswordEncoder;
-//
-//	@Autowired
-//	private Logger logger;
+
+	public static final Logger log = LogManager.getLogger(UserController.class);
+
 
 	@GetMapping("/id/{id}")
 	public ResponseEntity<User> findById(@PathVariable Long id) {
@@ -56,12 +57,12 @@ public class UserController {
 		user.setCart(cart);
 		if(createUserRequest.getPassword().length() < 7 ||
 			!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())) {
-			System.out.println("not working!");
-//			logger.log(error", "Error with user password. Cannot create user {}");
+			log.warn("Create user failed, password length should be more than 7 chars");
 			return ResponseEntity.badRequest().build();
 		}
 		user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
 		userRepository.save(user);
+		log.info("Create user succeeded");
 		return ResponseEntity.ok(user);
 	}
 	
